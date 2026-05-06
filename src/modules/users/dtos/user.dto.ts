@@ -37,7 +37,7 @@ export const responseFromUser = ({
   preferences: any[];
 }) => {
   return {
-    userId: user.user_id,
+    userId: user.userId,
     role: user.role,
     name: user.name,
     gender: user.gender,
@@ -48,7 +48,7 @@ export const responseFromUser = ({
     neighborhood: user.neighborhood,
     detail: user.detail,
     point: user.point,
-    createdAt: user.created_at,
+    createdAt: user.createdAt,
     preferences,
   };
 };
