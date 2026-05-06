@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { createReviewService } from "../services/review.service.js";
+import { createReviewService, getMyReviewsService } from "../services/review.service.js";
 
 export const createReview = async (req: Request, res: Response) => {
   try {
@@ -17,9 +17,28 @@ export const createReview = async (req: Request, res: Response) => {
     return res.status(err.status || 500).json({
       success: false,
       code: err.status || 500,
-      message: err.message,
-      error: { detail: err.detail || "unexpected error" }
+      message: "리뷰 작성 실패",
     });
   }
 };
 
+export const getMyReviews = async (req: Request, res: Response) => {
+  try {
+    const userId = Number(req.params.userId);
+
+    const result = await getMyReviewsService(userId);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      code: 200,
+      message: "내 리뷰 조회 성공",
+      data: result,
+    });
+  } catch (err: any) {
+    return res.status(err.status || 500).json({
+      success: false,
+      code: err.status || 500,
+      message: "리뷰 조회 실패",
+    });
+  }
+};

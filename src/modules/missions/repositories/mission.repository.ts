@@ -30,3 +30,19 @@ export const getMissionById = async (missionId: number) => {
     throw new Error(`미션 조회 오류: ${err}`);
   }
 };
+
+// 특정 가게 미션 목록 조회
+export const getMissionsByStoreId = async (storeId: number) => {
+  try {
+    return await prisma.mission.findMany({
+      where: {
+        storeId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  } catch (err) {
+    throw new Error(`미션 목록 조회 오류: ${err}`);
+  }
+};

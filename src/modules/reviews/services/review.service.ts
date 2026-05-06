@@ -1,5 +1,9 @@
 import { bodyToReview } from "../dtos/review.dto.js";
-import { addReview, checkReview } from "../repositories/review.repository.js";
+import { 
+  addReview, 
+  checkReview, 
+  getReviewsByUserId, 
+} from "../repositories/review.repository.js";
 import { getStoreById } from "../../stores/repositories/store.repository.js";
 
 export const createReviewService = async (data: any) => {
@@ -24,3 +28,12 @@ export const createReviewService = async (data: any) => {
   return { reviewId };
 };
 
+export const getMyReviewsService = async (userId: number) => {
+  if (!userId) {
+    throw { status: 400, message: "userId 필요" };
+  }
+
+  const reviews = await getReviewsByUserId(userId);
+
+  return reviews;
+};
