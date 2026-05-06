@@ -2,14 +2,16 @@ import { prisma } from "../../../db.config.js";
 
 export const addUserMission = async (
   userId: number,
-  missionId: number
+  missionId: number,
+  storeId: number
 ): Promise<number> => {
   try {
     const userMission = await prisma.userMission.create({
       data: {
         userId,
         missionId,
-        status: "ONGOING",
+        storeId,
+        status: "RECEIVED",
       },
     });
 

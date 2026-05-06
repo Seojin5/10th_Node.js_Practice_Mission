@@ -19,12 +19,12 @@ export const bodyToReview = (body: CreateReviewRequest) => {
 export const responseFromReview = (review: any) => {
   return {
     id: review.id,
-    userId: review.user_id,
-    storeId: review.store_id,
+    userId: review.userId,
+    storeId: review.storeId,
     rating: review.rating,
     content: review.content,
-    createdAt: review.created_at,
-    deletedAt: review.deleted_at,
+    createdAt: review.createdAt,
+    deletedAt: review.deletedAt,
   };
 };
 

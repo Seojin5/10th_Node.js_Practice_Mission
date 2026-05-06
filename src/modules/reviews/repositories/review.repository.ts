@@ -1,46 +1,41 @@
-import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { pool } from "../../../db.config.js";
+import { prisma } from "../../../db.config.js";
 
-export const addReview = async (data: any): Promise<number> => {
-  const conn = await pool.getConnection();
+// 리뷰 생성
+export const addReview = async (data: any) => {
 
   try {
-    const [result] = await conn.query<ResultSetHeader>(
-      `INSERT INTO review (user_id, store_id, user_mission_id, rating, content)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        data.userId,
-        data.storeId,
-        data.userMissionId,
-        data.rating,
-        data.content
-      ]
-    );
+    const review = await prisma.review.create({
+      data: {
+        userId: data.userId,
+        storeId: data.storeId,
+        userMissionId: data.userMissionId,
+        rating: data.rating,
+        content: data.content,
+      },
+    });
 
-    return result.insertId;
-  } finally {
-    conn.release();
+    return review.reviewId;
+  } catch (err) {
+    throw new Error(`리뷰 생성 오류: ${err}`);
   }
 };
 
-
+// 중복 체크
 export const checkReview = async (
   userId: number,
   userMissionId: number
-): Promise<boolean> => {
-  const conn = await pool.getConnection();
+) => {
 
   try {
-    const [rows] = await conn.query<RowDataPacket[]>(
-      `SELECT EXISTS(
-        SELECT 1 FROM review 
-        WHERE user_id = ? AND user_mission_id = ?
-      ) as exist`,
-      [userId, userMissionId]
-    );
+    const exist = await prisma.review.findFirst({
+      where: {
+        userId,
+        userMissionId,
+      },
+    });
 
-    return !!rows[0]?.exist;
-  } finally {
-    conn.release();
+    return !!exist;
+  } catch (err) {
+    throw new Error(`리뷰 중복 체크 오류: ${err}`);
   }
 };

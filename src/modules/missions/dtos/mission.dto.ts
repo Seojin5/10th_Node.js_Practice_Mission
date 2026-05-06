@@ -7,12 +7,11 @@ export interface CreateMissionDto {
 
 export const responseFromMission = (mission: any) => {
   return {
-    missionId: mission.mission_id,
-    storeId: mission.store_id,
+    missionId: mission.missionId,
+    storeId: mission.storeId,
     title: mission.title,
     description: mission.description,
     reward: mission.reward,
-    createdAt: mission.created_at,
+    createdAt: mission.createdAt,
   };
 };
-

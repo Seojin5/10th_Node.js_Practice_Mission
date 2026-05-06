@@ -14,21 +14,37 @@ datasource db {
 
 model User {
   userId        Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  phoneNumber   String
+
   role          String   @default("USER")
   name          String
   gender        String
   birth         DateTime
+
   address       String?
   city          String?
   district      String?
   neighborhood  String?
   detail        String?
+
   point         Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   deletedAt     DateTime?
 
   userMissions  UserMission[]
+  preferences   UserPreference[]
+  reviews Review[]
+}
+
+model UserPreference {
+  id             Int @id @default(autoincrement())
+  userId         Int
+  foodCategoryId Int
+
+  user User @relation(fields: [userId], references: [userId])
 }
 
 model UserMission {
@@ -37,6 +53,7 @@ model UserMission {
   missionId     Int
   reviewId      Int?
   storeId       Int
+
   status        String
   receivedAt    DateTime @default(now())
   completedAt   DateTime?
@@ -44,14 +61,16 @@ model UserMission {
   user    User    @relation(fields: [userId], references: [userId])
   mission Mission @relation(fields: [missionId], references: [missionId])
   store   Store   @relation(fields: [storeId], references: [storeId])
-  review  Review? @relation(fields: [reviewId], references: [reviewId])
+  review  Review?
 }
 
 model Mission {
   missionId   Int      @id @default(autoincrement())
   storeId     Int
+
   title       String
   description String
+  reward      Int
   createdAt   DateTime @default(now())
 
   store        Store         @relation(fields: [storeId], references: [storeId])
@@ -61,27 +80,37 @@ model Mission {
 model Store {
   storeId      Int      @id @default(autoincrement())
   storeName    String
+
   address      String?
   city         String?
   district     String?
   neighborhood String?
   detail       String?
+
   latitude     Float?
   longtitude   Float?
+  
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   deletedAt    DateTime?
 
   missions     Mission[]
   userMissions UserMission[]
+  reviews Review[]
 }
 
 model Review {
-  reviewId   Int      @id @default(autoincrement())
-  rating     Int
-  content    String
-  createdAt  DateTime @default(now())
-  deletedAt  DateTime?
+  reviewId       Int      @id @default(autoincrement())
+  userId         Int
+  storeId        Int
+  userMissionId  Int @unique
 
-  userMissions UserMission[]
+  rating         Int
+  content        String
+  createdAt      DateTime @default(now())
+  deletedAt      DateTime?
+
+  user           User @relation(fields: [userId], references: [userId])
+  store          Store @relation(fields: [storeId], references: [storeId])
+  userMission    UserMission? @relation(fields: [userMissionId], references: [userMissionId])
 }

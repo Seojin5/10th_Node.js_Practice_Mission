@@ -24,8 +24,8 @@ export const bodyToStore = (body: CreateStoreRequest) => {
 
 export const responseFromStore = (store: any) => {
   return {
-    storeId: store.store_id,
-    storeName: store.store_name,
+    storeId: store.storeId,
+    storeName: store.storeName,
     address: store.address,
     city: store.city,
     district: store.district,
@@ -33,6 +33,6 @@ export const responseFromStore = (store: any) => {
     detail: store.detail,
     latitude: store.latitude,
     longitude: store.longitude,
-    createdAt: store.created_at,
+    createdAt: store.createdAt,
   };
 };
