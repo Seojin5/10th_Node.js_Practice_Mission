@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsx src/index.ts",
-    "dev": "nodemon --ext ts,prisma --exec \"npx prisma generate && tsx src/index.ts\""
+    "dev": "nodemon --ignore src/generated --ignore dist --ext ts,prisma --exec \"npx prisma generate && tsx src/index.ts\""
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.8.0",
@@ -26,9 +26,10 @@
     "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.6.2",
     "nodemon": "^3.1.14",
     "prisma": "^7.8.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }
