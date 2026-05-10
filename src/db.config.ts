@@ -13,5 +13,20 @@ const adapter = new PrismaMariaDb({
 
 export const prisma = new PrismaClient({
   adapter,
-  log: ["query","info", "error", "warn"], // 쿼리 로그, 에러 로그, 경고 로그를 모두 출력하도록 설정
+  }).$extends({
+  query: {
+    async $allOperations({ model, operation, args, query }) {
+      const start = Date.now();
+
+      const result = await query(args);
+
+      const end = Date.now();
+
+      console.log(
+        `[Prisma Query] ${model}.${operation} - ${end - start}ms`
+      );
+
+      return result;
+    },
+  },
 });
