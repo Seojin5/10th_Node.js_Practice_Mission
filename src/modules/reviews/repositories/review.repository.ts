@@ -32,13 +32,17 @@ export const checkReview = async (
   userMissionId: number
 ): Promise<boolean> => {
 
-  const exist = await prisma.review.findFirst({
-    where: {
+  const exist = await prisma.review.findUnique({
+  where: {
+    userId_userMissionId: {
       userId,
       userMissionId,
     },
-  });
-
+  },
+  select: {
+    reviewId: true,
+  },
+});
   return !!exist;
 };
 

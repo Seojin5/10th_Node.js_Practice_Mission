@@ -113,4 +113,6 @@ model Review {
   user           User @relation(fields: [userId], references: [userId])
   store          Store @relation(fields: [storeId], references: [storeId])
   userMission    UserMission? @relation(fields: [userMissionId], references: [userMissionId])
+
+  @@unique([userId, userMissionId])
 }
