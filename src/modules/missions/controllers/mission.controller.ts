@@ -4,6 +4,7 @@ import {
   getStoreMissionsService 
 } from "../services/mission.service.js";
 import { ApiResponse } from "../../../utils/api.response.js";
+import { CustomError } from "../../../errors/custom.error.js";
 
 export const createMission = async (req: Request, res: Response) => {
   try {
@@ -18,11 +19,21 @@ export const createMission = async (req: Request, res: Response) => {
       )
     );
 
-  } catch (err: any) {
-    return res.status(err.status || 500).json(
+  } catch (err) {
+
+    if (err instanceof CustomError) {
+      return res.status(err.status).json(
+        ApiResponse.error(
+          err.status,
+          err.message
+        )
+      );
+    }
+
+    return res.status(500).json(
       ApiResponse.error(
-        err.status || 500,
-        "미션 생성 실패"
+        500,
+        "서버 내부 오류"
       )
     );
   }
@@ -40,11 +51,21 @@ export const getStoreMissions = async (req: Request, res: Response) => {
         result
       )
     );
-  } catch (err: any) {
-    return res.status(err.status || 500).json(
+  } catch (err) {
+
+    if (err instanceof CustomError) {
+      return res.status(err.status).json(
+        ApiResponse.error(
+          err.status,
+          err.message
+        )
+      );
+    }
+
+    return res.status(500).json(
       ApiResponse.error(
-        err.status || 500,
-        "가게 미션 조회 실패"
+        500,
+        "서버 내부 오류"
       )
     );
   }

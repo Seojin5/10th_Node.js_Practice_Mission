@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import { UserSignUpRequest } from "../dtos/user.dto.js";
 import { userSignUp } from "../services/user.service.js";
 import { ApiResponse } from "../../../utils/api.response.js";
+import { CustomError } from "../../../errors/custom.error.js";
 
 export const handleUserSignUp = async (
   req: Request,
@@ -25,11 +26,21 @@ export const handleUserSignUp = async (
       )
     );
 
-  } catch (err: any) {
-    return res.status(err.status || 500).json(
+  } catch (err) {
+
+    if (err instanceof CustomError) {
+      return res.status(err.status).json(
+        ApiResponse.error(
+          err.status,
+          err.message
+        )
+      );
+    }
+
+    return res.status(500).json(
       ApiResponse.error(
-        err.status || 500,
-        "회원가입 실패"
+        500,
+        "서버 내부 오류"
       )
     );
   }

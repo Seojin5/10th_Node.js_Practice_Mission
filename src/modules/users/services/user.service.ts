@@ -10,11 +10,17 @@ import {
   getUserPreferencesByUserId,
   setPreference,
 } from "../repositories/user.repository.js";
+import { CustomError } from "../../../errors/custom.error.js";
 
-export const userSignUp = async (data: UserSignUpRequest) => {
+export const userSignUp = async (
+  data: UserSignUpRequest
+) => {
   const converted = bodyToUser(data);
 
-  const hashedPassword = await bcrypt.hash(converted.password, 10);
+  const hashedPassword = await bcrypt.hash(
+    converted.password, 
+    10
+  );
 
   const joinUserId = await addUser({
     email: converted.email,
@@ -28,7 +34,10 @@ export const userSignUp = async (data: UserSignUpRequest) => {
   });
 
   if (joinUserId === null) {
-    throw new Error("이미 존재하는 이메일입니다.");
+    throw new CustomError(
+      409,
+      "이미 존재하는 이메일입니다."
+    );
   }
 
   await Promise.all(

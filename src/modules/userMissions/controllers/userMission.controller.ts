@@ -5,6 +5,7 @@ import {
   completeUserMissionService
 } from "../services/userMission.service.js";
 import { ApiResponse } from "../../../utils/api.response.js";
+import { CustomError } from "../../../errors/custom.error.js";
 
 // 미션 도전
 export const challengeMission = async (req: Request, res: Response) => {
@@ -38,16 +39,26 @@ export const getReceivedMissions = async (req: Request, res: Response) => {
 
     return res.status(200).json(
       ApiResponse.success(
-        201,
+        200,
         "진행중 미션 조회 성공",
         result
       )
     );
-  } catch (err: any) {
-    return res.status(err.status || 500).json(
+  } catch (err) {
+
+    if (err instanceof CustomError) {
+      return res.status(err.status).json(
+        ApiResponse.error(
+          err.status,
+          err.message
+        )
+      );
+    }
+
+    return res.status(500).json(
       ApiResponse.error(
-        err.status || 500,
-        "진행중 미션 조회 실패",
+        500,
+        "서버 내부 오류"
       )
     );
   }
@@ -67,11 +78,21 @@ export const completeUserMission = async (req: Request, res: Response) => {
         result
       )
     );
-  } catch (err: any) {
-    return res.status(err.status || 500).json(
+  } catch (err) {
+
+    if (err instanceof CustomError) {
+      return res.status(err.status).json(
+        ApiResponse.error(
+          err.status,
+          err.message
+        )
+      );
+    }
+
+    return res.status(500).json(
       ApiResponse.error(
-        err.status || 500,
-        "미션 완료 처리 실패",
+        500,
+        "서버 내부 오류"
       )
     );
   }

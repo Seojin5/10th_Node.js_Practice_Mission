@@ -5,13 +5,21 @@ import {
   getReviewsByUserId, 
 } from "../repositories/review.repository.js";
 import { getStoreById } from "../../stores/repositories/store.repository.js";
+import { CustomError } from "../../../errors/custom.error.js";
 
-export const createReviewService = async (data: any) => {
+export const createReviewService = async (
+  data: any
+) => {
   const converted = bodyToReview(data);
 
-  const store = await getStoreById(converted.storeId);
+  const store = await getStoreById(
+    converted.storeId
+  );
   if (!store) {
-    throw { status: 404, message: "가게 없음" };
+    throw new CustomError(
+      404,
+      "가게 없음"
+    );
   }
 
   const exist = await checkReview(
@@ -20,7 +28,10 @@ export const createReviewService = async (data: any) => {
   );
   
   if (exist) {
-    throw { status: 409, message: "이미 리뷰 있음" };
+    throw new CustomError(
+      409,
+      "이미 리뷰 있음"
+    );
   }
 
   const reviewId = await addReview(converted);
@@ -28,11 +39,15 @@ export const createReviewService = async (data: any) => {
   return { reviewId };
 };
 
-export const getMyReviewsService = async (userId: number) => {
+export const getMyReviewsService = async (
+  userId: number
+) => {
   if (!userId) {
-    throw { status: 400, message: "userId 필요" };
+    throw new CustomError(
+      400,
+      "userId 필요"
+    );
   }
-
   const reviews = await getReviewsByUserId(userId);
 
   return reviews;

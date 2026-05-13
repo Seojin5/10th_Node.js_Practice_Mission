@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { createStoreService } from "../services/store.service.js";
 import { ApiResponse } from "../../../utils/api.response.js";
+import { CustomError } from "../../../errors/custom.error.js";
 
 // 가게 생성
 export const createStore = async (req: Request, res: Response) => {
@@ -15,11 +16,21 @@ export const createStore = async (req: Request, res: Response) => {
         result
       )
     );
-  } catch (err: any) {
-    return res.status(400).json(
+  } catch (err) {
+
+    if (err instanceof CustomError) {
+      return res.status(err.status).json(
+        ApiResponse.error(
+          err.status,
+          err.message
+        )
+      );
+    }
+
+    return res.status(500).json(
       ApiResponse.error(
-        err.status || 400,
-        "가게 미션 조회 실패"
+        500,
+        "서버 내부 오류"
       )
     );
   }

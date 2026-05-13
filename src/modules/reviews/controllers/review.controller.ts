@@ -2,23 +2,34 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { createReviewService, getMyReviewsService } from "../services/review.service.js";
 import { ApiResponse } from "../../../utils/api.response.js";
+import { CustomError } from "../../../errors/custom.error.js";
 
 export const createReview = async (req: Request, res: Response) => {
   try {
     const result = await createReviewService(req.body);
 
-    return res.status(StatusCodes.CREATED).json({
-      success: true,
-      code: 201,
-      message: "리뷰 작성 성공",
-      data: result
-    });
+    return res.status(StatusCodes.CREATED).json(
+      ApiResponse.success(
+        201,
+        "리뷰 작성 성공",
+        result
+      )
+    );
+  } catch (err) {
 
-  } catch (err: any) {
-    return res.status(err.status || 500).json(
+    if (err instanceof CustomError) {
+      return res.status(err.status).json(
+        ApiResponse.error(
+          err.status,
+          err.message
+        )
+      );
+    }
+
+    return res.status(500).json(
       ApiResponse.error(
-        err.status || 500,
-        "리뷰 작성 실패",
+        500,
+        "서버 내부 오류"
       )
     );
   }
@@ -37,11 +48,21 @@ export const getMyReviews = async (req: Request, res: Response) => {
         result
       )
     );
-  } catch (err: any) {
-    return res.status(err.status || 500).json(
+  } catch (err) {
+
+    if (err instanceof CustomError) {
+      return res.status(err.status).json(
+        ApiResponse.error(
+          err.status,
+          err.message
+        )
+      );
+    }
+
+    return res.status(500).json(
       ApiResponse.error(
-        err.status || 500,
-        "리뷰 조회 실패",
+        500,
+        "서버 내부 오류"
       )
     );
   }

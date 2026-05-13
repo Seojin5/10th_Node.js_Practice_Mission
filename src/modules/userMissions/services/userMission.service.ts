@@ -1,4 +1,5 @@
 import { prisma } from "../../../db.config.js";
+import { CustomError } from "../../../errors/custom.error.js";
 import {
   addUserMission,
   checkUserMission,
@@ -6,15 +7,16 @@ import {
   completeUserMission
 } from "../repositories/userMission.repository.js";
 
-import { getMissionById } from "../../missions/repositories/mission.repository.js";
-
 // 유저 확인
 export const challengeMissionService = async (
   missionId: number, 
   userId: number
 ) => {
   if (!userId) {
-    throw { status: 400, message: "userId 필요" };
+    throw new CustomError(
+      400,
+      "userId 필요"
+    );
   }
 
   const mission = await prisma.mission.findUnique({
@@ -22,12 +24,18 @@ export const challengeMissionService = async (
   });
 
   if (!mission) {
-    throw { status: 404, message: "미션 없음" };
+    throw new CustomError(
+      404,
+      "미션 없음"
+    );
   }
 
   const exist = await checkUserMission(userId, missionId);
   if (exist) {
-    throw { status: 409, message: "이미 도전 중인 미션입니다." };
+    throw new CustomError(
+      409,
+      "이미 도전 중인 미션입니다."
+    );
   }
 
   const userMissionId = await addUserMission(
@@ -39,9 +47,14 @@ export const challengeMissionService = async (
   return { userMissionId };
 };
 
-export const getReceivedMissionsService = async (userId: number) => {
+export const getReceivedMissionsService = async (
+  userId: number
+) => {
   if (!userId) {
-    throw { status: 400, message: "userId 필요" };
+    throw new CustomError(
+      400,
+      "userId 필요"
+    );
   }
 
   const missions = await getReceivedMissionsByUserId(userId);
@@ -55,7 +68,10 @@ export const completeUserMissionService = async (
   userId: number
 ) => {
   if (!userMissionId || !userId) {
-    throw { status: 400, message: "필수 값 누락" };
+    throw new CustomError(
+      400,
+      "필수 값 누락"
+    );
   }
 
   // userMission + mission 같이 조회
@@ -66,16 +82,25 @@ export const completeUserMissionService = async (
     },
   });
 
-  if (!userMission) {
-    throw { status: 404, message: "미션 없음" };
+   if (!userMission) {
+    throw new CustomError(
+      404,
+      "미션 없음"
+    );
   }
 
   if (userMission.userId !== userId) {
-    throw { status: 403, message: "권한 없음" };
+    throw new CustomError(
+      403,
+      "권한 없음"
+    );
   }
 
   if (userMission.status === "COMPLETED") {
-    throw { status: 409, message: "이미 완료된 미션" };
+    throw new CustomError(
+      409,
+      "이미 완료된 미션"
+    );
   }
 
   const reward = userMission.mission.reward;
