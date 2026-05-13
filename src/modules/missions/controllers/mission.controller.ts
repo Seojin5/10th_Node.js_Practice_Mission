@@ -43,6 +43,8 @@ export class MissionController extends Controller {
           err.message
       );
     }
+    
+    this.setStatus(500);
 
     return ApiResponse.error(
         500,

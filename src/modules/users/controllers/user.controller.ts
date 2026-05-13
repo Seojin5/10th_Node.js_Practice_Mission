@@ -35,6 +35,9 @@ export class UserController extends Controller {
     } catch (err) {
 
       if (err instanceof CustomError) {
+        this.setStatus(err.status);
+
+
         return ApiResponse.error(
             err.status,
             err.message
