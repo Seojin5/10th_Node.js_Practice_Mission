@@ -12,11 +12,8 @@ interface AddStoreParams {
 }
 
 // 가게 생성
-export const addStore = async (
-  data: AddStoreParams
-) => {
-
-  const store = await prisma.store.create({
+export const addStore = async (data: AddStoreParams) => {
+  return await prisma.store.create({
     data: {
       storeName: data.storeName,
       address: data.address,
@@ -28,13 +25,10 @@ export const addStore = async (
       longitude: data.longitude,
     },
   });
-
-  return store.storeId;
 };
 
 // 가게 조회
 export const getStoreById = async (storeId: number) => {
-
   return await prisma.store.findUnique({
     where: { storeId },
   });

@@ -9,11 +9,8 @@ interface AddReviewParams {
 }
 
 // 리뷰 생성
-export const addReview = async (
-  data: AddReviewParams
-) => {
-
-  const review = await prisma.review.create({
+export const addReview = async (data: AddReviewParams) => {
+  return await prisma.review.create({
     data: {
       userId: data.userId,
       storeId: data.storeId,
@@ -22,35 +19,30 @@ export const addReview = async (
       content: data.content,
     },
   });
-
-  return review.reviewId;
 };
 
 // 중복 체크
 export const checkReview = async (
   userId: number,
-  userMissionId: number
+  userMissionId: number,
 ): Promise<boolean> => {
-
   const exist = await prisma.review.findUnique({
-  where: {
-    userId_userMissionId: {
-      userId,
-      userMissionId,
+    where: {
+      userId_userMissionId: {
+        userId,
+        userMissionId,
+      },
     },
-  },
-  select: {
-    reviewId: true,
-  },
-});
+    select: {
+      reviewId: true,
+    },
+  });
+
   return !!exist;
 };
 
 // 사용자가 작성한 리뷰 목록 조회
-export const getReviewsByUserId = async (
-  userId: number
-) => {
-  
+export const getReviewsByUserId = async (userId: number) => {
   return await prisma.review.findMany({
     where: {
       userId,

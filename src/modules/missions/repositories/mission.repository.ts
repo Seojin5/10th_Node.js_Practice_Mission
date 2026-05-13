@@ -8,11 +8,8 @@ interface AddMissionParams {
 }
 
 // 미션 생성
-export const addMission = async (
-  data: AddMissionParams
-) => {
-
-  const mission = await prisma.mission.create({
+export const addMission = async (data: AddMissionParams) => {
+  return await prisma.mission.create({
     data: {
       storeId: data.storeId,
       title: data.title,
@@ -20,24 +17,17 @@ export const addMission = async (
       reward: data.reward,
     },
   });
-
-  return mission.missionId;
 };
 
-// 미션 조회
-export const getMissionById = async (
-  missionId: number
-) => {
-
+// 미션 조회 (단건)
+export const getMissionById = async (missionId: number) => {
   return await prisma.mission.findUnique({
     where: { missionId },
   });
 };
 
 // 특정 가게 미션 목록 조회
-export const getMissionsByStoreId = async (
-  storeId: number
-) => {
+export const getMissionsByStoreId = async (storeId: number) => {
   return await prisma.mission.findMany({
     where: {
       storeId,

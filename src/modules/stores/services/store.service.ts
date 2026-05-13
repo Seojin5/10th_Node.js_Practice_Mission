@@ -1,31 +1,51 @@
 import { CustomError } from "../../../errors/custom.error.js";
 import { addStore } from "../repositories/store.repository.js";
 
+import { CreateStoreRequest } from "../dtos/store.request.dto.js";
+import { CreateStoreResponse } from "../dtos/store.response.dto.js";
+
 export const createStoreService = async (
-  data: any
-) => {
-  const { 
-    name, 
-    city, 
-    district, 
-    neighborhood, 
-    detail 
+  data: CreateStoreRequest,
+): Promise<CreateStoreResponse> => {
+  const {
+    storeName,
+    address,
+    city,
+    district,
+    neighborhood,
+    detail,
+    latitude,
+    longitude,
   } = data;
 
+  // 1. 필수값 검증
   if (
-    !name || 
-    !city || 
-    !district || 
-    !neighborhood || 
-    !detail) {
-    throw new CustomError(
-      400,
-      "필수 값 누락"
-    );
+    !storeName ||
+    !address ||
+    !city ||
+    !district ||
+    !neighborhood ||
+    !detail ||
+    latitude == null ||
+    longitude == null
+  ) {
+    throw new CustomError(400, "필수 값 누락");
   }
 
-  const storeId = await addStore(data);
+  // 2. 생성
+  const store = await addStore(data);
 
-  return { storeId };
+  // 3. DTO 반환
+  return {
+    storeId: store.storeId,
+    storeName: store.storeName,
+    address: store.address,
+    city: store.city,
+    district: store.district,
+    neighborhood: store.neighborhood,
+    detail: store.detail,
+    latitude: store.latitude,
+    longitude: store.longitude,
+    createdAt: store.createdAt,
+  };
 };
-

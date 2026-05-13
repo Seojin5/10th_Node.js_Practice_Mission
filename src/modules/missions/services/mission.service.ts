@@ -1,62 +1,67 @@
-import { prisma } from "../../../db.config.js";
-import { 
+import { CustomError } from "../../../errors/custom.error.js";
+import {
   addMission,
-  getMissionsByStoreId  
+  getMissionsByStoreId,
 } from "../repositories/mission.repository.js";
 import { getStoreById } from "../../stores/repositories/store.repository.js";
-import { CustomError } from "../../../errors/custom.error.js";
 
+import { CreateMissionRequest } from "../dtos/misison.request.dto.js";
+import { CreateMissionResponse } from "../dtos/mission.response.dto.js";
+
+// 미션 생성
 export const createMissionService = async (
-  storeId: number, 
-  data: any
-) => {
-  const { title, reward } = data;
+  storeId: number,
+  data: CreateMissionRequest,
+): Promise<CreateMissionResponse> => {
+  const { title, description, reward } = data;
 
-  if (!title || !reward) {
-    throw new CustomError(
-      400,
-      "필수 값 누락"  
-    );
+  if (!title || !description || reward == null) {
+    throw new CustomError(400, "필수 값 누락");
   }
 
-  // 가게 존재 확인
   const store = await getStoreById(storeId);
   if (!store) {
-    throw new CustomError(
-      404,
-      "가게를 찾을 수 없습니다."
-    );
+    throw new CustomError(404, "가게를 찾을 수 없습니다.");
   }
 
-  const missionId = await addMission({
+  const mission = await addMission({
     storeId,
     title,
-    reward
+    description,
+    reward,
   });
 
-  return { missionId };
+  return {
+    missionId: mission.missionId,
+    storeId,
+    title,
+    description,
+    reward,
+    createdAt: mission.createdAt,
+  };
 };
 
-export const getStoreMissionsService = async (storeId: number) => {
+// 가게 미션 조회
+export const getStoreMissionsService = async (
+  storeId: number,
+): Promise<CreateMissionResponse[]> => {
   if (!storeId) {
-    throw new CustomError(
-      400,
-      "storeId 필요"
-    );
+    throw new CustomError(400, "storeId 필요");
   }
 
-  // 가게 존재 확인
   const store = await getStoreById(storeId);
   if (!store) {
-    throw new CustomError(
-      404,
-      "가게를 찾을 수 없습니다."
-    );
+    throw new CustomError(404, "가게를 찾을 수 없습니다.");
   }
 
-  const missions = await getMissionsByStoreId(
-    storeId
-  );
+  const missions = await getMissionsByStoreId(storeId);
 
-  return missions;
+  return missions.map((mission) => ({
+    missionId: mission.missionId,
+    storeId: mission.storeId,
+    title: mission.title,
+    description: mission.description,
+    reward: mission.reward,
+    createdAt: mission.createdAt,
+  }));
 };
