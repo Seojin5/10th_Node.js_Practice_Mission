@@ -1,13 +1,18 @@
-import { CustomError } from "../../../errors/custom.error.js";
+import { CustomError } from "../../../common/errors/custom.error.js";
+
 import {
   addUserMission,
   checkUserMission,
-  getReceivedMissionsByUserId,
   completeUserMission,
+  getReceivedMissionsByUserId,
   getUserMissionById,
 } from "../repositories/userMission.repository.js";
 
+import { getMissionById } from "../../missions/repositories/mission.repository.js";
+
 import { prisma } from "../../../db.config.js";
+
+import { validateRequired } from "../../../common/utils/validate.util.js";
 
 import { ChallengeMissionResponse } from "../dtos/userMission.response.dto.js";
 
@@ -16,21 +21,31 @@ export const challengeMissionService = async (
   missionId: number,
   userId: number,
 ): Promise<{ userMissionId: number }> => {
-  if (!userId) {
-    throw new CustomError(400, "userId 필요");
-  }
 
-  const mission = await prisma.mission.findUnique({
-    where: { missionId },
-  });
+  validateRequired(userId, "userId 필요");
+  validateRequired(missionId, "missionId 필요");
+
+  const mission = await getMissionById(missionId);
 
   if (!mission) {
-    throw new CustomError(404, "미션 없음");
+    throw new CustomError(
+      404,
+      "미션 없음",
+      "MISSION_NOT_FOUND",
+    );
   }
 
-  const exist = await checkUserMission(userId, missionId);
+  const exist = await checkUserMission(
+    userId,
+    missionId,
+  );
+
   if (exist) {
-    throw new CustomError(409, "이미 도전 중인 미션입니다.");
+    throw new CustomError(
+      409,
+      "이미 도전 중인 미션입니다.",
+      "MISSION_ALREADY_CHALLENGED",
+    );
   }
 
   const userMission = await addUserMission({
@@ -39,14 +54,17 @@ export const challengeMissionService = async (
     storeId: mission.storeId,
   });
 
-  return { userMissionId: userMission.userMissionId };
+  return {
+    userMissionId: userMission.userMissionId,
+  };
 };
 
 // 진행중 미션 조회
-export const getReceivedMissionsService = async (userId: number) => {
-  if (!userId) {
-    throw new CustomError(400, "userId 필요");
-  }
+export const getReceivedMissionsService = async (
+  userId: number,
+) => {
+
+  validateRequired(userId, "userId 필요");
 
   return await getReceivedMissionsByUserId(userId);
 };
@@ -56,36 +74,61 @@ export const completeUserMissionService = async (
   userMissionId: number,
   userId: number,
 ): Promise<ChallengeMissionResponse> => {
-  if (!userMissionId || !userId) {
-    throw new CustomError(400, "필수 값 누락");
-  }
 
-  const userMission = await getUserMissionById(userMissionId);
+  validateRequired(userMissionId, "userMissionId 필요");
+  validateRequired(userId, "userId 필요");
+
+  const userMission = await getUserMissionById(
+    userMissionId,
+  );
 
   if (!userMission) {
-    throw new CustomError(404, "미션 없음");
+    throw new CustomError(
+      404,
+      "미션 없음",
+      "USER_MISSION_NOT_FOUND",
+    );
   }
 
   if (userMission.userId !== userId) {
-    throw new CustomError(403, "권한 없음");
+    throw new CustomError(
+      403,
+      "권한 없음",
+      "FORBIDDEN",
+    );
   }
 
   if (userMission.status === "COMPLETED") {
-    throw new CustomError(409, "이미 완료된 미션");
+    throw new CustomError(
+      409,
+      "이미 완료된 미션",
+      "MISSION_ALREADY_COMPLETED",
+    );
   }
 
   const reward = userMission.mission.reward;
 
-  const updated = await completeUserMission(userMissionId);
+  const updated = await prisma.$transaction(
+  async (tx) => {
 
-  await prisma.user.update({
-    where: { userId },
-    data: {
-      point: {
-        increment: reward,
+    const completedMission =
+      await completeUserMission(
+        userMissionId,
+        tx,
+      );
+
+    await tx.user.update({
+      where: { userId },
+      data: {
+        point: {
+          increment: reward,
+        },
       },
-    },
-  });
+    });
+
+    return completedMission;
+  },
+);
 
   return {
     userMissionId: updated.userMissionId,

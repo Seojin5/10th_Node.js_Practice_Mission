@@ -21,7 +21,7 @@ export const addMission = async (data: AddMissionParams) => {
 
 // 미션 조회 (단건)
 export const getMissionById = async (missionId: number) => {
-  return await prisma.mission.findUnique({
+  return prisma.mission.findUnique({
     where: { missionId },
   });
 };

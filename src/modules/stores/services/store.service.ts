@@ -1,4 +1,4 @@
-import { CustomError } from "../../../errors/custom.error.js";
+import { CustomError } from "../../../common/errors/custom.error.js";
 import { addStore } from "../repositories/store.repository.js";
 
 import { CreateStoreRequest } from "../dtos/store.request.dto.js";
@@ -29,7 +29,10 @@ export const createStoreService = async (
     latitude == null ||
     longitude == null
   ) {
-    throw new CustomError(400, "필수 값 누락");
+    throw new CustomError(
+      400, 
+      "필수 값 누락"
+    );
   }
 
   // 2. 생성

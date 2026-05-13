@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { CustomError } from "../../../errors/custom.error.js";
+import { CustomError } from "../../../common/errors/custom.error.js";
 
 import {
   addUser,
@@ -15,6 +15,14 @@ import { UserSignUpResponse } from "../dtos/user.response.dto.js";
 export const userSignUp = async (
   data: UserSignUpRequest,
 ): Promise<UserSignUpResponse> => {
+   if (!data.preferences?.length) {
+    throw new CustomError(
+      400,
+      "선호 카테고리 필요",
+      "PREFERENCE_REQUIRED",
+    );
+  }
+  
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
   // 1. 유저 생성

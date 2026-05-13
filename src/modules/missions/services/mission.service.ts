@@ -1,8 +1,11 @@
-import { CustomError } from "../../../errors/custom.error.js";
+import { CustomError } from "../../../common/errors/custom.error.js";
+import { validateRequired } from "../../../common/utils/validate.util.js";
+
 import {
   addMission,
   getMissionsByStoreId,
 } from "../repositories/mission.repository.js";
+
 import { getStoreById } from "../../stores/repositories/store.repository.js";
 
 import { CreateMissionRequest } from "../dtos/misison.request.dto.js";
@@ -13,30 +16,34 @@ export const createMissionService = async (
   storeId: number,
   data: CreateMissionRequest,
 ): Promise<CreateMissionResponse> => {
-  const { title, description, reward } = data;
 
-  if (!title || !description || reward == null) {
-    throw new CustomError(400, "필수 값 누락");
-  }
+  validateRequired(storeId, "storeId 필요");
+  validateRequired(data.title, "title 필요");
+  validateRequired(data.description, "description 필요");
+  validateRequired(data.reward, "reward 필요");
 
   const store = await getStoreById(storeId);
+
   if (!store) {
-    throw new CustomError(404, "가게를 찾을 수 없습니다.");
+    throw new CustomError(
+      404,
+      "가게를 찾을 수 없습니다.",
+    );
   }
 
   const mission = await addMission({
     storeId,
-    title,
-    description,
-    reward,
+    title: data.title,
+    description: data.description,
+    reward: data.reward,
   });
 
   return {
     missionId: mission.missionId,
-    storeId,
-    title,
-    description,
-    reward,
+    storeId: mission.storeId,
+    title: mission.title,
+    description: mission.description,
+    reward: mission.reward,
     createdAt: mission.createdAt,
   };
 };
@@ -45,13 +52,16 @@ export const createMissionService = async (
 export const getStoreMissionsService = async (
   storeId: number,
 ): Promise<CreateMissionResponse[]> => {
-  if (!storeId) {
-    throw new CustomError(400, "storeId 필요");
-  }
+
+  validateRequired(storeId, "storeId 필요");
 
   const store = await getStoreById(storeId);
+
   if (!store) {
-    throw new CustomError(404, "가게를 찾을 수 없습니다.");
+    throw new CustomError(
+      404,
+      "가게를 찾을 수 없습니다.",
+    );
   }
 
   const missions = await getMissionsByStoreId(storeId);

@@ -1,4 +1,6 @@
+import { PrismaClient } from "@prisma/client/extension";
 import { prisma } from "../../../db.config.js";
+import { Prisma } from "../../../generated/prisma/client.js";
 
 interface AddUserMissionParams {
   userId: number;
@@ -51,11 +53,12 @@ export const getReceivedMissionsByUserId = async (userId: number) => {
 };
 
 // 미션 완료 처리
-export const completeUserMission = async (userMissionId: number) => {
-  return await prisma.userMission.update({
-    where: {
-      userMissionId,
-    },
+export const completeUserMission = async (
+  userMissionId: number,
+  tx: PrismaClient,
+) => {
+  return tx.userMission.update({
+    where: { userMissionId },
     data: {
       status: "COMPLETED",
       completedAt: new Date(),

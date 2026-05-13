@@ -3,8 +3,7 @@ import { StatusCodes } from "http-status-codes";
 
 import { createReviewService, getMyReviewsService } from "../services/review.service.js";
 
-import { ApiResponse } from "../../../utils/api.response.js";
-import { CustomError } from "../../../errors/custom.error.js";
+import { ApiResponse } from "../../../common/responses/api.response.js";
 
 @Route("reviews")
 @Tags("Reviews")
@@ -16,37 +15,16 @@ export class ReviewController extends Controller {
   public async createReview(
     @Body() body: any,
   ) {
-    try {
 
-      const result = await createReviewService(body);
+    const result = await createReviewService(body);
 
-      this.setStatus(StatusCodes.CREATED);
+    this.setStatus(StatusCodes.CREATED);
 
-      return ApiResponse.success(
-        201,
-        "리뷰 작성 성공",
-        result
-      );
-
-    } catch (err) {
-
-      if (err instanceof CustomError) {
-
-        this.setStatus(err.status);
-
-        return ApiResponse.error(
-          err.status,
-          err.message
-        );
-      }
-
-      this.setStatus(500);
-
-      return ApiResponse.error(
-        500,
-        "서버 내부 오류"
-      );
-    }
+    return ApiResponse.success(
+      201,
+      "리뷰 작성 성공",
+      result,
+    );
   }
 
   @SuccessResponse(StatusCodes.OK, "내 리뷰 조회 성공")
@@ -55,36 +33,15 @@ export class ReviewController extends Controller {
   public async getMyReviews(
     @Path() userId: number,
   ) {
-    try {
 
-      const result = await getMyReviewsService(userId);
+    const result = await getMyReviewsService(userId);
 
-      this.setStatus(StatusCodes.OK);
+    this.setStatus(StatusCodes.OK);
 
-      return ApiResponse.success(
-        200,
-        "내 리뷰 조회 성공",
-        result
-      );
-
-    } catch (err) {
-
-      if (err instanceof CustomError) {
-
-        this.setStatus(err.status);
-
-        return ApiResponse.error(
-          err.status,
-          err.message
-        );
-      }
-
-      this.setStatus(500);
-
-      return ApiResponse.error(
-        500,
-        "서버 내부 오류"
-      );
-    }
+    return ApiResponse.success(
+      200,
+      "내 리뷰 조회 성공",
+      result,
+    );
   }
 }

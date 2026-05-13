@@ -8,27 +8,56 @@ import {
 } from "../repositories/review.repository.js";
 
 import { getStoreById } from "../../stores/repositories/store.repository.js";
-import { CustomError } from "../../../errors/custom.error.js";
+
+import { CustomError } from "../../../common/errors/custom.error.js";
+import { validateRequired } from "../../../common/utils/validate.util.js";
 
 // 리뷰 생성
 export const createReviewService = async (
   data: CreateReviewRequest,
 ): Promise<CreateReviewResponse> => {
-  const { userId, storeId, userMissionId, rating, content } = data;
 
-  // 1. 가게 존재 확인
+  const {
+    userId,
+    storeId,
+    userMissionId,
+    rating,
+    content,
+  } = data;
+
+  validateRequired(userId, "userId 필요");
+  validateRequired(storeId, "storeId 필요");
+  validateRequired(userMissionId, "userMissionId 필요");
+  validateRequired(content, "content 필요");
+
+  if (rating < 1 || rating > 5) {
+    throw new CustomError(
+      400,
+      "평점은 1~5점만 가능합니다.",
+    );
+  }
+
   const store = await getStoreById(storeId);
+
   if (!store) {
-    throw new CustomError(404, "가게 없음");
+    throw new CustomError(
+      404,
+      "가게 없음",
+    );
   }
 
-  // 2. 중복 리뷰 체크
-  const exist = await checkReview(userId, userMissionId);
+  const exist = await checkReview(
+    userId,
+    userMissionId,
+  );
+
   if (exist) {
-    throw new CustomError(409, "이미 리뷰 있음");
+    throw new CustomError(
+      409,
+      "이미 리뷰 있음",
+    );
   }
 
-  // 3. 생성
   const review = await addReview({
     userId,
     storeId,
@@ -37,7 +66,6 @@ export const createReviewService = async (
     content,
   });
 
-  // 4. DTO 반환
   return {
     reviewId: review.reviewId,
     userId: review.userId,
@@ -53,9 +81,8 @@ export const createReviewService = async (
 export const getMyReviewsService = async (
   userId: number,
 ): Promise<CreateReviewResponse[]> => {
-  if (!userId) {
-    throw new CustomError(400, "userId 필요");
-  }
+
+  validateRequired(userId, "userId 필요");
 
   const reviews = await getReviewsByUserId(userId);
 
