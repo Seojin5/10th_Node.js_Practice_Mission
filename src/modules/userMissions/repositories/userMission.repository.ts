@@ -1,79 +1,75 @@
 import { prisma } from "../../../db.config.js";
 
+interface AddUserMissionParams {
+  userId: number;
+  missionId: number;
+  storeId: number;
+}
+
 // 미션 추가
 export const addUserMission = async (
-  userId: number,
-  missionId: number,
-  storeId: number
+  data: AddUserMissionParams
 ): Promise<number> => {
-  try {
-    const userMission = await prisma.userMission.create({
+  
+  const userMission =
+    await prisma.userMission.create({
       data: {
-        userId,
-        missionId,
-        storeId,
+        userId: data.userId,
+        missionId: data.missionId,
+        storeId: data.storeId,
         status: "RECEIVED",
       },
     });
 
-    return userMission.userMissionId;
-  } catch (err) {
-    throw new Error(`유저 미션 생성 오류: ${err}`);
-  }
+  return userMission.userMissionId;
 };
 
 export const checkUserMission = async (
   userId: number,
   missionId: number
 ): Promise<boolean> => {
-  try {
-    const exist = await prisma.userMission.findFirst({
-      where: {
-        userId,
-        missionId,
-      },
-    });
+  
+  const exist = await prisma.userMission.findFirst({
+    where: {
+      userId,
+      missionId,
+    },
+  });
 
-    return !!exist;
-
-  } catch (err) {
-    throw new Error(`중복 체크 오류: ${err}`);
-  }
+  return !!exist;
 };
 
 // 진행중 미션 목록
-export const getReceivedMissionsByUserId = async (userId: number) => {
-  try {
-    return await prisma.userMission.findMany({
-      where: {
-        userId,
-        status: "RECEIVED",
-      },
-      orderBy: {
-        receivedAt: "desc",
-      },
-      include: {
-        mission: true,
-        store: true,
-      },
-    });
-  } catch (err) {
-    throw new Error(`진행중 미션 조회 오류: ${err}`);
-  }
+export const getReceivedMissionsByUserId = async (
+  userId: number
+) => {
+
+  return await prisma.userMission.findMany({
+    where: {
+      userId,
+      status: "RECEIVED",
+    },
+    orderBy: {
+      receivedAt: "desc",
+    },
+    include: {
+      mission: true,
+      store: true,
+    },
+  });
 };
 
-export const completeUserMission = async (userMissionId: number) => {
-  try {
-    return await prisma.userMission.update({
-      where: {
-        userMissionId,
-      },
-      data: {
-        status: "COMPLETED",
-        completedAt: new Date(),
-      },
-    });
-  } catch (err) {
-    throw new Error(`미션 완료 처리 오류: ${err}`);
-  }
+export const completeUserMission = async (
+  userMissionId: number
+) => {
+
+  return await prisma.userMission.update({
+    where: {
+      userMissionId,
+    },
+    data: {
+      status: "COMPLETED",
+      completedAt: new Date(),
+    },
+  });
 };

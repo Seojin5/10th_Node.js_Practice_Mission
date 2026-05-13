@@ -38,11 +38,11 @@ export const challengeMissionService = async (
     );
   }
 
-  const userMissionId = await addUserMission(
-    userId, 
-    missionId, 
-    mission.storeId
-  );
+   const userMissionId = await addUserMission({
+    userId,
+    missionId,
+    storeId: mission.storeId,
+  });
 
   return { userMissionId };
 };

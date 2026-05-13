@@ -88,7 +88,7 @@ model Store {
   detail       String?
 
   latitude     Float?
-  longtitude   Float?
+  longitude   Float?
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
