@@ -5,6 +5,7 @@ import { RegisterRoutes } from "./generated/routes.js";
 import { errorMiddleware } from "./common/middlewares/error.middleware.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 
 
 dotenv.config();
@@ -12,6 +13,13 @@ dotenv.config();
 const app: Express = express();
 
 app.use(cors());
+
+app.use(
+  compression({
+    threshold: 512,
+  }),
+);
+
 app.use(morgan("dev"));
 app.use(cookieParser());
 
